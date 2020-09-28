@@ -25,14 +25,14 @@ class Barra(object):
 
 	def calcular_largo(self, reticulado):
 		xi = reticulado.obtener_coordenada_nodal(self.ni)
-        	xj = reticulado.obtener_coordenada_nodal(self.nj)
-        	dij = xi - xj
-        	return np.sqrt(np.dot(dij,dij))
+		xj = reticulado.obtener_coordenada_nodal(self.nj)
+		dij = xi - xj
+		return np.sqrt(np.dot(dij,dij))
 
 	def calcular_peso(self, reticulado):
 		L = self.calcular_largo(reticulado)
-        	A = self.calcular_area()
-        	return self.ρ * A * L * g
+		A = self.calcular_area()
+		return self.ρ * A * L * g
 
 
 
