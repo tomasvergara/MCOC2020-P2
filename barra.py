@@ -34,7 +34,48 @@ class Barra(object):
 		A = self.calcular_area()
 		return self.ρ * A * L * g
 
+	def obtener_rigidez(self, reticulado) :
+                L = self.calcular_largo(reticulado)
+                A = self.calcular_area()
+                k = self.E * A / L
+                
+                xi = reticulado.obtener_coordenada_nodal(self.ni)
+                xj = reticulado.obtener_coordenada_nodal(self.nj)
+                resta_coordenadas = xj - xi
+                cosθ = resta_coordenadas[0] / L
+                sinθ = resta_coordenadas[1] / L
+                Tθ = np.array([[-cosθ, -sinθ, cosθ, sinθ]])
+        
+                Ke = k* Tθ.T @ Tθ
+                return Ke # matriz (4x4)
 
+	def obtener_vector_de_cargas(self, reticulado):
+		w = self.calcular_peso(reticulado)
+		vector = np.array([[0, -1, 0, -1]])
+		fe = vector.T * w/2
+		return fe # Vector numpy de (4x1)
+
+	def obtener_fuerza(self, reticulado):
+		L = self.calcular_largo(reticulado)
+		A = self.calcular_area()
+		k = self.E * A / L
+		
+		xi = reticulado.obtener_coordenada_nodal(self.ni)
+		xj = reticulado.obtener_coordenada_nodal(self.nj)
+		resta_coordenadas = xj - xi
+		cosθ = resta_coordenadas[0] / L
+		sinθ = resta_coordenadas[1] / L
+		Tθ = np.array([[-cosθ, -sinθ, cosθ, sinθ]])
+		
+		ui = reticulado.obtener_desplazamiento_nodal(self.ni)
+		uj = reticulado.obtener_desplazamiento_nodal(self.nj)
+		vector_ue = np.array([ui[0], ui[1],uj[0],uj[1]]) # Vector numpy de (4x1)
+
+		# delta = Tθ · ue
+		delta = Tθ @ vector_ue
+		se = k * delta
+		return se[0][0] # Escalar
+	
 
 
 
