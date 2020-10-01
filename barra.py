@@ -35,19 +35,19 @@ class Barra(object):
 		return self.ρ * A * L * g
 
 	def obtener_rigidez(self, reticulado) :
-                L = self.calcular_largo(reticulado)
-                A = self.calcular_area()
-                k = self.E * A / L
-                
-                xi = reticulado.obtener_coordenada_nodal(self.ni)
-                xj = reticulado.obtener_coordenada_nodal(self.nj)
-                resta_coordenadas = xj - xi
-                cosθ = resta_coordenadas[0] / L
-                sinθ = resta_coordenadas[1] / L
-                Tθ = np.array([[-cosθ, -sinθ, cosθ, sinθ]])
-        
-                Ke = k* Tθ.T @ Tθ
-                return Ke # matriz (4x4)
+		L = self.calcular_largo(reticulado)
+		A = self.calcular_area()
+		k = self.E * A / L
+		
+		xi = reticulado.obtener_coordenada_nodal(self.ni)
+		xj = reticulado.obtener_coordenada_nodal(self.nj)
+		resta_coordenadas = xj - xi
+		cosθ = resta_coordenadas[0] / L
+		sinθ = resta_coordenadas[1] / L
+		Tθ = np.array([[-cosθ, -sinθ, cosθ, sinθ]])
+		
+		Ke = k* Tθ.T @ Tθ
+		return Ke # matriz (4x4)
 
 	def obtener_vector_de_cargas(self, reticulado):
 		w = self.calcular_peso(reticulado)
@@ -74,7 +74,7 @@ class Barra(object):
 		# delta = Tθ · ue
 		delta = Tθ @ vector_ue
 		se = k * delta
-		return se[0][0] # Escalar
+		return se[0] # Escalar
 	
 
 
