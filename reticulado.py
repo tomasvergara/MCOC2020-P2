@@ -1,18 +1,20 @@
 import numpy as np
+from scipy.linalg import solve
 
 class Reticulado(object):
 	"""Define un reticulado"""
+	__NNodosInit__ = 100
 	def __init__(self):
 		super(Reticulado, self).__init__()
 		
-		self.xyz = np.zeros((0,3), dtype=np.double)
+		self.xyz = np.zeros((Reticulado.__NNodosInit__,3), dtype=np.double)
 		self.Nnodos = 0
 		self.barras = []
 		self.cargas = {}
 		self.restricciones = {}
 		self.Ndimensiones = 2
 		self.tiene_solucion = False
-
+		
 	def agregar_nodo(self, x, y, z=0):
 		if self.Nnodos+1 > Reticulado.__NNodosInit__:
 			self.xyz.resize((self.Nnodos+1,3))
@@ -39,20 +41,20 @@ class Reticulado(object):
 		return self.xyz[0:self.Nnodos,:].copy()
 		
 	def obtener_barras(self):
-		return self.barras 
-
+		return self.barras
+	
 	def agregar_restriccion(self, nodo, gdl, valor=0.0):
 		if nodo not in self.restricciones:
 			self.restricciones[nodo] = [[gdl, valor]]
 		else:
 			self.restricciones[nodo].append([gdl, valor])
-
+			
 	def agregar_fuerza(self, nodo, gdl, valor):
 		if nodo not in self.cargas:
 			self.cargas[nodo] = [[gdl, valor]]
 		else:
 			self.cargas[nodo].append([gdl, valor])
-
+			
 	def ensamblar_sistema(self):
 		Ngdl = self.Nnodos * self.Ndimensiones
 		
@@ -118,8 +120,8 @@ class Reticulado(object):
 		
 		#Marcar internamente que se tiene solucion
 		self.tiene_solucion = True
-
-
+		
+		
 	def obtener_desplazamiento_nodal(self, n):
 		dofs = [2*n, 2*n+1]
 		return self.u[dofs]
@@ -129,45 +131,43 @@ class Reticulado(object):
 		for i,b in enumerate(self.barras):
 			fuerzas[i] = b.obtener_fuerza(self)
 		return fuerzas
-
 	
-    	def __str__(self):
-        	s = "nodos:\n"
-        	for n in range(self.Nnodos):
-            		s += f"  {n} : ( {self.xyz[n,0]}, {self.xyz[n,1]}, {self.xyz[n,2]}) \n "
-        	s += "\n\n"
-
-        	s += "barras:\n"
-        	for i, b in enumerate(self.barras):
-            		n = b.obtener_conectividad()
-            		s += f" {i} : [ {n[0]} {n[1]} ] \n"
-        	s += "\n\n"
-        
-        	s += "restricciones:\n"
-        	for nodo in self.restricciones:
-            		s += f"{nodo} : {self.restricciones[nodo]}\n"
-        	s += "\n\n"
-        
-        	s += "cargas:\n"
-        	for nodo in self.cargas:
-            		s += f"{nodo} : {self.cargas[nodo]}\n"
-        	s += "\n\n"
-
-        	if self.tiene_solucion:
-            		s += "desplazamientos:\n"
-            		if self.Ndimensiones == 2:
-                		uvw = self.u.reshape((-1,2))
-                		for n in range(self.Nnodos):
-                    			s += f"  {n} : ( {uvw[n,0]}, {uvw[n,1]}) \n "
-        	s += "\n\n"
-
-        	if self.tiene_solucion:
-            		f = self.recuperar_fuerzas()
-            		s += "fuerzas:\n"
-            		for b in range(len(self.barras)):
-                		s += f"  {b} : {f[b]}\n"
-        	s += "\n"
-
-        	return s
-
 	
+	def __str__(self):
+		s = "nodos:\n"
+		for n in range(self.Nnodos):
+			s += f"  {n} : ( {self.xyz[n,0]}, {self.xyz[n,1]}, {self.xyz[n,2]}) \n "
+		s += "\n\n"
+		
+		s += "barras:\n"
+		for i, b in enumerate(self.barras):
+			n = b.obtener_conectividad()
+			s += f" {i} : [ {n[0]} {n[1]} ] \n"
+		s += "\n\n"
+		
+		s += "restricciones:\n"
+		for nodo in self.restricciones:
+			s += f"{nodo} : {self.restricciones[nodo]}\n"
+		s += "\n\n"
+		
+		s += "cargas:\n"
+		for nodo in self.cargas:
+			s += f"{nodo} : {self.cargas[nodo]}\n"
+		s += "\n\n"
+		
+		if self.tiene_solucion:
+			s += "desplazamientos:\n"
+			if self.Ndimensiones == 2:
+				uvw = self.u.reshape((-1,2))
+				for n in range(self.Nnodos):
+					s += f"  {n} : ( {uvw[n,0]}, {uvw[n,1]}) \n "
+		s += "\n\n"
+		
+		if self.tiene_solucion:
+			f = self.recuperar_fuerzas()
+			s += "fuerzas:\n"
+			for b in range(len(self.barras)):
+				s += f"  {b} : {f[b]}\n"
+		s += "\n"
+		
+		return s
